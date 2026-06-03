@@ -1317,4 +1317,94 @@ describe('Additional actions tests', () => {
       getSpy.mockRestore();
     });
   });
+
+  test('uses titleLabel from adhoc filter instead of subject for dynamic title', async () => {
+    const props = createProps({
+      formData: {
+        ...createProps().chart.latestQueryFormData,
+        showDynamicTitle: true,
+        adhoc_filters: [{ subject: 'country', titleLabel: 'West Coast Region' }],
+      },
+      chart: {
+        ...createProps().chart,
+        queriesResponse: null,
+      },
+    });
+
+    render(<ExploreHeader {...props} />, { useRedux: true });
+
+    expect(
+      await screen.findByDisplayValue(
+        'Age distribution of respondents by West Coast Region',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  test('falls back to subject when titleLabel is empty string', async () => {
+    const props = createProps({
+      formData: {
+        ...createProps().chart.latestQueryFormData,
+        showDynamicTitle: true,
+        adhoc_filters: [{ subject: 'country', titleLabel: '' }],
+      },
+      chart: {
+        ...createProps().chart,
+        queriesResponse: null,
+      },
+    });
+
+    render(<ExploreHeader {...props} />, { useRedux: true });
+
+    expect(
+      await screen.findByDisplayValue(
+        'Age distribution of respondents by country',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  test('uses titleLabel from native filter for dynamic title', async () => {
+    const props = createProps({
+      formData: {
+        ...createProps().chart.latestQueryFormData,
+        showDynamicTitle: true,
+        extra_form_data: {
+          filters: [{ col: 'state', op: 'IN', val: ['CA'], titleLabel: 'Pacific States' }],
+        },
+      },
+      chart: {
+        ...createProps().chart,
+        queriesResponse: null,
+      },
+    });
+
+    render(<ExploreHeader {...props} />, { useRedux: true });
+
+    expect(
+      await screen.findByDisplayValue(
+        'Age distribution of respondents by Pacific States',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  test('uses titleLabel over column name when both are present', async () => {
+    const props = createProps({
+      formData: {
+        ...createProps().chart.latestQueryFormData,
+        showDynamicTitle: true,
+        adhoc_filters: [{ column: 'region', titleLabel: 'Sales Region' }],
+      },
+      chart: {
+        ...createProps().chart,
+        queriesResponse: null,
+      },
+    });
+
+    render(<ExploreHeader {...props} />, { useRedux: true });
+
+    expect(
+      await screen.findByDisplayValue(
+        'Age distribution of respondents by Sales Region',
+      ),
+    ).toBeInTheDocument();
+  });
 });

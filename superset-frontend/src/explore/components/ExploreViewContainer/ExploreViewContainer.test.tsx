@@ -1052,3 +1052,71 @@ test('automatic axis title margin adjustment handles both X and Y axis titles be
     jest.restoreAllMocks();
   }
 });
+
+test('prefills SaveModal with titleLabel from adhoc filter when dynamic title is enabled', async () => {
+  const customState = {
+    ...reduxState,
+    explore: {
+      ...reduxState.explore,
+      sliceName: 'Sales Report',
+      controls: {
+        ...reduxState.explore.controls,
+        show_dynamic_title: { value: true },
+        adhoc_filters: {
+          value: [{ subject: 'region', titleLabel: 'West Coast' }],
+        },
+      },
+    },
+    charts: {
+      ...reduxState.charts,
+      1: {
+        ...reduxState.charts[1],
+        queriesResponse: null,
+      },
+    },
+    saveModal: {
+      isVisible: true,
+      dashboards: [],
+      saveModalAlert: null,
+    },
+  };
+
+  renderWithRouter({ initialState: customState });
+
+  const chartNameInput = await screen.findByTestId('new-chart-name');
+  expect(chartNameInput).toHaveValue('Sales Report by West Coast');
+});
+
+test('titleLabel takes precedence over column name in SaveModal prefill', async () => {
+  const customState = {
+    ...reduxState,
+    explore: {
+      ...reduxState.explore,
+      sliceName: 'Revenue Chart',
+      controls: {
+        ...reduxState.explore.controls,
+        show_dynamic_title: { value: true },
+        adhoc_filters: {
+          value: [{ column: 'territory', titleLabel: 'APAC Territory' }],
+        },
+      },
+    },
+    charts: {
+      ...reduxState.charts,
+      1: {
+        ...reduxState.charts[1],
+        queriesResponse: null,
+      },
+    },
+    saveModal: {
+      isVisible: true,
+      dashboards: [],
+      saveModalAlert: null,
+    },
+  };
+
+  renderWithRouter({ initialState: customState });
+
+  const chartNameInput = await screen.findByTestId('new-chart-name');
+  expect(chartNameInput).toHaveValue('Revenue Chart by APAC Territory');
+});
