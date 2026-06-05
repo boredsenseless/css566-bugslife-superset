@@ -433,6 +433,9 @@ export default class AdhocFilterEditPopover extends Component<
           ]}
         />
         <div style={{ marginTop: 8 }}>
+          <div style={{ marginBottom: 4, fontSize: 12 }}>
+            {t('Custom filter name')}
+          </div>
           <Input
             value={this.state.adhocFilter.titleLabel ?? ''}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -442,7 +445,7 @@ export default class AdhocFilterEditPopover extends Component<
                 }),
               );
             }}
-            placeholder={t('Title label (optional)')}
+            placeholder={t('Filter name (optional)')}
             maxLength={100}
           />
         </div>
